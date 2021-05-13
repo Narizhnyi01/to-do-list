@@ -2,14 +2,18 @@ import React, {useEffect} from "react";
 import './App.scss'
 import ListWrap from "./Component/ListWrap/ListWrap";
 import AddTask from "./Component/AddTask/AddTask";
-import Context from "./context";
 import axios from "axios";
+import {connect} from "react-redux";
+import Loader from "./Component/Loader/Loader";
 
 function App() {
 
   const [todos, setTodos] = React.useState([
 
   ])
+  const [loading, setLoading] = React.useState(true)
+
+
 
 
   useEffect(() => {
@@ -24,8 +28,9 @@ function App() {
           newObj.name = key
           todo.push(newObj)
         }
-
         setTodos(todo)
+        console.log(todo)
+        setLoading(false)
       })
   }, [])
 
@@ -34,19 +39,30 @@ function App() {
     setTodos(todos.map(todo => {
       if (todo.name === name) {
         state = !todo.checked
-        todo.checked = !todo.checked
+        todo.checked = state
       }
       return todo
 
     }))
-    console.log(state)
+
     axios.put(`https://todo-list-a91ce-default-rtdb.firebaseio.com/todos/${name}/checked.json`, `${state}` )
   }
 
   function removeTodo(name) {
-    setTodos(todos.filter(todo => todo.name !== name))
+    setTodos(todos.map(todo => {
+      if (todo.name === name) {
 
-    axios.delete(`https://todo-list-a91ce-default-rtdb.firebaseio.com/todos/${name}.json`)
+        todo.removeTodo = true
+      }
+      return todo
+
+    }))
+
+    setTimeout(() => {
+      setTodos(todos.filter(todo => name !== todo.name))
+      axios.delete(`https://todo-list-a91ce-default-rtdb.firebaseio.com/todos/${name}.json`)
+    }, 980)
+
   }
 
   function addTodo(title) {
@@ -54,7 +70,8 @@ function App() {
     let newItem = {
       id: Date.now(),
       text: title,
-      checked: false
+      checked: false,
+      removeTodo: false
     }
 
     axios.post('https://todo-list-a91ce-default-rtdb.firebaseio.com/todos.json', newItem)
@@ -73,7 +90,7 @@ function App() {
 
   return (
 
-    <Context.Provider value={{removeTodo}}>
+
 
       <div className="App">
         <div className="container">
@@ -81,18 +98,23 @@ function App() {
           <AddTask onCreate={addTodo}/>
 
           {
-            todos.length
-              ? <ListWrap list={todos} onToggle={toggleTodo}/>
+            loading
+            ? <Loader/>
+            : todos.length
+                ? <ListWrap list={todos} onToggle={toggleTodo} removeTodo={removeTodo}/>
 
-              : <h2>У вас нет заданий</h2>
+                : <h2>У вас нет заданий</h2>
+
 
           }
 
-
         </div>
       </div>
-    </Context.Provider>
+
   );
 }
+
+
+
 
 export default App;

@@ -1,15 +1,23 @@
-import React, {useContext} from "react";
+import React from "react";
 import Checkbox from "@material-ui/core/Checkbox";
 import DeleteIcon from '@material-ui/icons/Delete';
 import Button from "@material-ui/core/Button";
-import Context from "../../../context";
 
-const ListItem = ({item, index, onChange, classItem}) => {
-  const { removeTodo } = useContext(Context)
+const ListItem = ({item, index, onChange, classItemDone, classItemRemove, removeTodo}) => {
+
+  let classes = []
+
+  if (classItemDone){
+    classes.push(classItemDone)
+  }
+  if (classItemRemove){
+    classes.push(classItemRemove)
+  }
+
   return (
 
-      <li>
-        <span className={classItem}>
+      <li className={classes.join(' ')}>
+        <span>
             <Checkbox
               checked={item.checked}
               onChange={() => onChange(item.name)}

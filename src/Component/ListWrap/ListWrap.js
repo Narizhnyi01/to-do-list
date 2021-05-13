@@ -10,7 +10,14 @@ const ListWrap = (props) => {
         {
           props.list.map((item, index) => {
             return(
-              <ListItem key={item.id} item={item} index={index} onChange={props.onToggle} classItem={ item.checked ? 'done' : null }/>
+              <ListItem
+                key={item.id}
+                item={item}
+                index={index}
+                onChange={props.onToggle}
+                removeTodo={props.removeTodo}
+                classItemDone={  item.checked ? 'done' : null }
+                classItemRemove={  item.removeTodo ? 'remove' : null }/>
 
             )
           })
